@@ -17,3 +17,31 @@ export async function getUserOrganizations(userId: string) {
     )
     .where(eq(organizationMembers.userId, userId));
 }
+
+export async function createOrganization(data: {
+  name: string;
+  slug: string;
+  userId: string;
+}) {
+  return db.transaction(async (tx) => {
+    const [organization] = await tx
+      .insert(organizations)
+      .values({
+        name: data.name,
+        slug: data.slug,
+      })
+      .returning();
+
+    if (!organization) {
+      throw new Error("Failed to create organization");
+    }
+
+    await tx.insert(organizationMembers).values({
+      organizationId: organization.id,
+      userId: data.userId,
+      role: "owner",
+    });
+
+    return organization;
+  });
+}

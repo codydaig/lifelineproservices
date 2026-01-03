@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { OrganizationCard } from "./organization-card";
 import { Card, CardContent } from "@workspace/ui/components/card";
 import { Button } from "@workspace/ui/components/button";
+import { CreateOrganizationModal } from "./create-organization-modal";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,9 @@ export default async function OrganizationsPage() {
               </p>
               <p className="text-[10px] text-muted-foreground/40 mt-2 uppercase tracking-tighter">
                 Session: {session.user.email} • {session.user.id}
+                {session.user.organizationId && (
+                  <> • Org: {session.user.organizationId}</>
+                )}
               </p>
             </div>
             <form
@@ -51,7 +55,11 @@ export default async function OrganizationsPage() {
           <CardContent className="p-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {organizations.map((org) => (
-                <OrganizationCard key={org.id} organization={org} />
+                <OrganizationCard
+                  key={org.id}
+                  organization={org}
+                  isSelected={session.user.organizationId === org.id}
+                />
               ))}
               {organizations.length === 0 && (
                 <div className="col-span-full py-20 text-center">
@@ -61,7 +69,7 @@ export default async function OrganizationsPage() {
                 </div>
               )}
             </div>
-            <Button className="w-full mt-6">Create New Organization</Button>
+            <CreateOrganizationModal />
           </CardContent>
         </Card>
       </main>
