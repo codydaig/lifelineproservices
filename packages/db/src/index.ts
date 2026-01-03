@@ -2,3 +2,4 @@
 export * from "./schema";
 export * from "./client";
 export * from "./adapter";
+export * from "./queries/organizations";
