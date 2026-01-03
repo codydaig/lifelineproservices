@@ -22,6 +22,7 @@ export async function createOrganization(data: {
   name: string;
   slug: string;
   userId: string;
+  stripeCustomerId?: string;
 }) {
   return db.transaction(async (tx) => {
     const [organization] = await tx
@@ -29,6 +30,7 @@ export async function createOrganization(data: {
       .values({
         name: data.name,
         slug: data.slug,
+        stripeCustomerId: data.stripeCustomerId,
       })
       .returning();
 
