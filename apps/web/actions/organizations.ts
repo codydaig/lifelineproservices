@@ -34,7 +34,7 @@ export async function createOrganizationAction(formData: FormData) {
   });
 
   revalidatePath("/organizations");
-  redirect(`/organizations`);
+  redirect("/");
 }
 
 export async function selectOrganizationAction(organizationId: string) {
@@ -52,6 +52,6 @@ export async function selectOrganizationAction(organizationId: string) {
     },
   });
 
-  revalidatePath("/organizations");
-  redirect(`/organizations`);
+  // revalidatePath("/organizations");
+  redirect("/");
 }

@@ -2,7 +2,7 @@
 
 import { Card } from "@workspace/ui/components/card";
 import { ChevronRight, Check } from "lucide-react";
-import { selectOrganizationAction } from "../../actions/organizations";
+import { selectOrganizationAction } from "@/actions/organizations";
 import { useTransition } from "react";
 import { cn } from "@workspace/ui/lib/utils";
 
@@ -33,9 +33,8 @@ export function OrganizationCard({
       <button
         type="button"
         className="w-full text-left appearance-none bg-transparent border-none p-0 m-0 cursor-pointer block disabled:opacity-50"
-        disabled={isPending || isSelected}
+        disabled={isPending}
         onClick={() => {
-          if (isSelected) return;
           startTransition(async () => {
             await selectOrganizationAction(organization.id);
           });
