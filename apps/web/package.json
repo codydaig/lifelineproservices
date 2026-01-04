@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "postinstall": "cd ../../packages/db && pnpm db:migrate:run",
+    "postinstall": "if [ \"$VERCEL\" = \"1\" ]; then cd ../../packages/db && pnpm db:migrate:run; fi",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
