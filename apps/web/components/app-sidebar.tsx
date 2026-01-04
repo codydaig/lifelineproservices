@@ -12,6 +12,7 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  Calculator,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -191,6 +192,17 @@ export function AppSidebar({
         {
           title: "Settings",
           url: "#",
+        },
+      ],
+    },
+    {
+      title: "Accounting",
+      url: "#",
+      icon: Calculator,
+      items: [
+        {
+          title: "Chart of Accounts",
+          url: "/accounts",
         },
       ],
     },

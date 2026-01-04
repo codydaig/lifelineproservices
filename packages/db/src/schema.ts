@@ -8,6 +8,9 @@ import {
   uuid,
   pgEnum,
   unique,
+  serial,
+  varchar,
+  AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "@auth/core/adapters";
 
@@ -43,7 +46,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
-  })
+  }),
 );
 
 export const sessions = pgTable("session", {
@@ -63,7 +66,7 @@ export const verificationTokens = pgTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
 );
 
 // Multi-tenancy tables
@@ -106,8 +109,44 @@ export const organizationMembers = pgTable(
   (table) => ({
     // Ensure a user can only be a member of an organization once
     uniqueMembership: unique().on(table.organizationId, table.userId),
-  })
+  }),
 );
+
+export const accountTypeEnum = pgEnum("account_type", [
+  "equity",
+  "asset",
+  "liability",
+  "revenue",
+  "expense",
+]);
+
+export const accountSubTypeEnum = pgEnum("account_sub_type", [
+  "bank",
+  "cash",
+  "fixed_asset",
+  "other",
+  "credit_card",
+]);
+
+export const chartOfAccounts = pgTable("accounts", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }),
+  type: accountTypeEnum("type").notNull(),
+  organizationId: uuid("organizationId")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  parentAccountId: integer("parent_account_id").references(
+    (): AnyPgColumn => chartOfAccounts.id,
+  ),
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  subType: accountSubTypeEnum("subType").notNull().default("other"),
+  description: varchar("description", { length: 255 }),
+});
 
 // Type exports for TypeScript
 export type User = typeof users.$inferSelect;
@@ -127,3 +166,6 @@ export type NewOrganization = typeof organizations.$inferInsert;
 
 export type OrganizationMember = typeof organizationMembers.$inferSelect;
 export type NewOrganizationMember = typeof organizationMembers.$inferInsert;
+
+export type ChartOfAccount = typeof chartOfAccounts.$inferSelect;
+export type NewChartOfAccount = typeof chartOfAccounts.$inferInsert;
