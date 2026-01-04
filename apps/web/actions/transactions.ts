@@ -185,7 +185,8 @@ export async function importQuickBooksLedger(csvData: string) {
 
   for (const row of rows) {
     // Get the first column (the one with no name or empty string)
-    const firstColumn = row[""] || row[Object.keys(row)[0]];
+    const firstKey = Object.keys(row)[0];
+    const firstColumn = row[""] || (firstKey ? row[firstKey] : undefined);
 
     // Check if this is an account header row (first column has account name, rest are empty)
     if (firstColumn && firstColumn.trim() !== "" && !row["Transaction date"]) {
