@@ -18,6 +18,12 @@ export async function getUserOrganizations(userId: string) {
     .where(eq(organizationMembers.userId, userId));
 }
 
+export async function getOrganizationById(id: string) {
+  return db.query.organizations.findFirst({
+    where: eq(organizations.id, id),
+  });
+}
+
 export async function createOrganization(data: {
   name: string;
   slug: string;
@@ -45,5 +51,36 @@ export async function createOrganization(data: {
     });
 
     return organization;
+  });
+}
+
+export async function updateOrganizationSubscription(
+  organizationId: string,
+  data: {
+    stripeSubscriptionId: string | null;
+    stripePriceId: string | null;
+    stripeCurrentPeriodEnd: Date | null;
+  },
+) {
+  console.log(
+    `Updating organization ${organizationId} subscription:`,
+    JSON.stringify(data),
+  );
+  return db
+    .update(organizations)
+    .set({
+      stripeSubscriptionId: data.stripeSubscriptionId,
+      stripePriceId: data.stripePriceId,
+      stripeCurrentPeriodEnd: data.stripeCurrentPeriodEnd,
+      updatedAt: new Date(),
+    })
+    .where(eq(organizations.id, organizationId));
+}
+
+export async function getOrganizationByStripeCustomerId(
+  stripeCustomerId: string,
+) {
+  return db.query.organizations.findFirst({
+    where: eq(organizations.stripeCustomerId, stripeCustomerId),
   });
 }
