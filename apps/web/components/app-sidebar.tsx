@@ -50,6 +50,10 @@ export function AppSidebar({
       icon: Calculator,
       items: [
         {
+          title: "Register",
+          url: "/accounting/register",
+        },
+        {
           title: "Chart of Accounts",
           url: "/accounting/accounts",
         },

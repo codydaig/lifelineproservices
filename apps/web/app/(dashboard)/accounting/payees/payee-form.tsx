@@ -20,7 +20,7 @@ const payeeSchema = z.object({
   city: z.string().optional().nullable(),
   state: z.string().optional().nullable(),
   zip: z.string().optional().nullable(),
-  isW9vendor: z.boolean().default(false),
+  isW9vendor: z.boolean(),
   w9Attachment: z.string().optional().nullable(),
 });
 

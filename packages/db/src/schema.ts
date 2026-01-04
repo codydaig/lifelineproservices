@@ -11,7 +11,9 @@ import {
   serial,
   varchar,
   AnyPgColumn,
+  numeric,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import type { AdapterAccountType } from "@auth/core/adapters";
 
 // Auth.js tables
@@ -186,6 +188,91 @@ export const accountingPayees = pgTable("accounting_payees", {
     .defaultNow(),
 });
 
+export const transactionTypeEnum = pgEnum("transaction_type", [
+  "journal_entry",
+  "check",
+  "deposit",
+  "transfer",
+  "expense",
+  "invoice",
+]);
+
+export const accountingTransactions = pgTable("accounting_transactions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organizationId")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  date: timestamp("date", { mode: "date" }).notNull(),
+  transactionType: transactionTypeEnum("transaction_type").notNull(),
+  description: varchar("description", { length: 255 }),
+  attachments: text("attachments"), // JSON stored as text
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const accountingEntries = pgTable("accounting_entries", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organizationId")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  transactionId: uuid("transaction_id")
+    .notNull()
+    .references(() => accountingTransactions.id, { onDelete: "cascade" }),
+  accountId: uuid("account_id")
+    .notNull()
+    .references(() => chartOfAccounts.id, { onDelete: "restrict" }),
+  payeeId: uuid("payee_id").references(() => accountingPayees.id, {
+    onDelete: "set null",
+  }),
+  classId: uuid("class_id").references(() => accountingClasses.id, {
+    onDelete: "set null",
+  }),
+  number: varchar("number", { length: 50 }),
+  debit: numeric("debit", { precision: 14, scale: 2 }),
+  credit: numeric("credit", { precision: 14, scale: 2 }),
+  memo: varchar("memo", { length: 255 }),
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// Relations
+export const accountingTransactionsRelations = relations(
+  accountingTransactions,
+  ({ many }) => ({
+    entries: many(accountingEntries),
+  })
+);
+
+export const accountingEntriesRelations = relations(
+  accountingEntries,
+  ({ one }) => ({
+    transaction: one(accountingTransactions, {
+      fields: [accountingEntries.transactionId],
+      references: [accountingTransactions.id],
+    }),
+    account: one(chartOfAccounts, {
+      fields: [accountingEntries.accountId],
+      references: [chartOfAccounts.id],
+    }),
+    payee: one(accountingPayees, {
+      fields: [accountingEntries.payeeId],
+      references: [accountingPayees.id],
+    }),
+    class: one(accountingClasses, {
+      fields: [accountingEntries.classId],
+      references: [accountingClasses.id],
+    }),
+  })
+);
+
 // Type exports for TypeScript
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -213,3 +300,9 @@ export type NewAccountingClass = typeof accountingClasses.$inferInsert;
 
 export type AccountingPayee = typeof accountingPayees.$inferSelect;
 export type NewAccountingPayee = typeof accountingPayees.$inferInsert;
+
+export type AccountingTransaction = typeof accountingTransactions.$inferSelect;
+export type NewAccountingTransaction = typeof accountingTransactions.$inferInsert;
+
+export type AccountingEntry = typeof accountingEntries.$inferSelect;
+export type NewAccountingEntry = typeof accountingEntries.$inferInsert;

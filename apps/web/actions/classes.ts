@@ -25,7 +25,7 @@ export async function importQuickBooksClasses(csvData: string) {
   // Find the header row
   let headerIndex = 0;
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].includes("Class full name")) {
+    if (lines[i]?.includes("Class full name")) {
       headerIndex = i;
       break;
     }
