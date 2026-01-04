@@ -128,7 +128,7 @@ export const accountSubTypeEnum = pgEnum("account_sub_type", [
   "credit_card",
 ]);
 
-export const chartOfAccounts = pgTable("accounts", {
+export const chartOfAccounts = pgTable("accounting_accounts", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }),
   type: accountTypeEnum("type").notNull(),

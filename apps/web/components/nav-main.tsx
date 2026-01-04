@@ -40,6 +40,21 @@ export function NavMain({
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
+          // If item has no sub-items, render as a direct link
+          if (!item.items || item.items.length === 0) {
+            const isActive = pathname === item.url
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
+                  <a href={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          }
+
           // Check if any sub-item is active
           const hasActiveSubItem = item.items?.some(
             (subItem) => pathname === subItem.url
