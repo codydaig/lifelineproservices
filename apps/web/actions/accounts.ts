@@ -132,7 +132,7 @@ export async function importQuickBooksAccounts(csvData: string) {
     await insertChartOfAccounts(accountsToInsert);
   }
 
-  revalidatePath("/accounts");
+  revalidatePath("/accounting/accounts");
   return { success: true, count: accountsToInsert.length };
 }
 
@@ -152,7 +152,7 @@ export async function createChartOfAccount(
     organizationId: session.user.organizationId,
   });
 
-  revalidatePath("/accounts");
+  revalidatePath("/accounting/accounts");
   return account;
 }
 
@@ -170,6 +170,6 @@ export async function updateChartOfAccount(
   // TODO: Verify account belongs to organization
   const account = await dbUpdateChartOfAccount(id, data);
 
-  revalidatePath("/accounts");
+  revalidatePath("/accounting/accounts");
   return account;
 }

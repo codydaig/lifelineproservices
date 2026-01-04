@@ -202,7 +202,7 @@ export function AppSidebar({
       items: [
         {
           title: "Chart of Accounts",
-          url: "/accounts",
+          url: "/accounting/accounts",
         },
       ],
     },

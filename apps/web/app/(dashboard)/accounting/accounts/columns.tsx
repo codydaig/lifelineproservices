@@ -68,6 +68,14 @@ export const getColumns = (
   {
     accessorKey: "description",
     header: "Description",
+    cell: ({ row }) => {
+      const description = row.getValue("description") as string | null;
+      return (
+        <div className="max-w-md whitespace-normal break-words">
+          {description || "-"}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "created_at",
