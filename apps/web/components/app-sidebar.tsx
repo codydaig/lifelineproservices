@@ -57,6 +57,10 @@ export function AppSidebar({
           title: "Classes",
           url: "/accounting/classes",
         },
+        {
+          title: "Payees",
+          url: "/accounting/payees",
+        },
       ],
     },
     {

@@ -163,6 +163,29 @@ export const accountingClasses = pgTable("accounting_classes", {
     .defaultNow(),
 });
 
+export const accountingPayees = pgTable("accounting_payees", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organizationId")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  address1: varchar("address1", { length: 255 }),
+  address2: varchar("address2", { length: 255 }),
+  city: varchar("city", { length: 255 }),
+  state: varchar("state", { length: 255 }),
+  zip: varchar("zip", { length: 255 }),
+  phone: varchar("phone", { length: 255 }),
+  email: varchar("email", { length: 255 }),
+  isW9vendor: boolean("isW9vendor").default(false),
+  w9Attachment: varchar("w9_attachment", { length: 255 }),
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // Type exports for TypeScript
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -187,3 +210,6 @@ export type NewChartOfAccount = typeof chartOfAccounts.$inferInsert;
 
 export type AccountingClass = typeof accountingClasses.$inferSelect;
 export type NewAccountingClass = typeof accountingClasses.$inferInsert;
+
+export type AccountingPayee = typeof accountingPayees.$inferSelect;
+export type NewAccountingPayee = typeof accountingPayees.$inferInsert;
