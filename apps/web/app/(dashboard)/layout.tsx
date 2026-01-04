@@ -16,6 +16,14 @@ export default async function DashboardLayout({
   if (!session?.user?.id) return redirect("/api/auth/signin");
   if (!session.user.organizationId) return redirect("/organizations");
   const orgMemberships = await getUserOrganizations(session?.user?.id);
+  const currentOrg = orgMemberships.find(
+    (org) => org.id === session.user.organizationId,
+  );
+  if (
+    !currentOrg?.stripeCurrentPeriodEnd ||
+    currentOrg?.stripeCurrentPeriodEnd < new Date()
+  )
+    return redirect(`/organizations/${session.user.organizationId}/billing`);
 
   return (
     <SidebarProvider>

@@ -9,6 +9,7 @@ export async function getUserOrganizations(userId: string) {
       name: organizations.name,
       slug: organizations.slug,
       imageUrl: organizations.imageUrl,
+      stripeCurrentPeriodEnd: organizations.stripeCurrentPeriodEnd,
     })
     .from(organizations)
     .innerJoin(
