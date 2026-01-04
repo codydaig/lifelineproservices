@@ -53,6 +53,10 @@ export function AppSidebar({
           title: "Chart of Accounts",
           url: "/accounting/accounts",
         },
+        {
+          title: "Classes",
+          url: "/accounting/classes",
+        },
       ],
     },
     {

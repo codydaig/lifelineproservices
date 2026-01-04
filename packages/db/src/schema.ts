@@ -148,6 +148,21 @@ export const chartOfAccounts = pgTable("accounting_accounts", {
   description: varchar("description", { length: 255 }),
 });
 
+export const accountingClasses = pgTable("accounting_classes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organizationId")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: varchar("description", { length: 255 }),
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // Type exports for TypeScript
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -169,3 +184,6 @@ export type NewOrganizationMember = typeof organizationMembers.$inferInsert;
 
 export type ChartOfAccount = typeof chartOfAccounts.$inferSelect;
 export type NewChartOfAccount = typeof chartOfAccounts.$inferInsert;
+
+export type AccountingClass = typeof accountingClasses.$inferSelect;
+export type NewAccountingClass = typeof accountingClasses.$inferInsert;
