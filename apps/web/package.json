@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-table": "^8.21.3",
     "@workspace/db": "workspace:*",
     "@workspace/ui": "workspace:*",
@@ -19,13 +20,17 @@
     "next": "16.1.1",
     "next-auth": "5.0.0-beta.30",
     "next-themes": "^0.4.6",
+    "papaparse": "^5.5.3",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "stripe": "^20.1.0"
+    "react-hook-form": "^7.69.0",
+    "stripe": "^20.1.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
     "@types/node": "^20.19.25",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@workspace/eslint-config": "workspace:^",

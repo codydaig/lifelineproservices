@@ -4,8 +4,20 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@workspace/ui/components/badge";
 import { ChartOfAccount } from "@workspace/db";
 import { Checkbox } from "@workspace/ui/components/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu";
+import { Button } from "@workspace/ui/components/button";
+import { Edit, MoreHorizontal } from "lucide-react";
+import { AccountDialog } from "./account-dialog";
 
-export const columns: ColumnDef<ChartOfAccount>[] = [
+export const getColumns = (
+  accounts: ChartOfAccount[],
+): ColumnDef<ChartOfAccount>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -63,6 +75,25 @@ export const columns: ColumnDef<ChartOfAccount>[] = [
     cell: ({ row }) => {
       const date = new Date(row.original.createdAt);
       return <div>{date.toLocaleDateString()}</div>;
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const account = row.original;
+
+      return (
+        <AccountDialog
+          initialData={account}
+          accounts={accounts}
+          trigger={
+            <Button variant="ghost" size="icon">
+              <Edit className="h-4 w-4" />
+              <span className="sr-only">Edit</span>
+            </Button>
+          }
+        />
+      );
     },
   },
 ];

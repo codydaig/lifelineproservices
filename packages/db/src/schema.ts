@@ -129,13 +129,13 @@ export const accountSubTypeEnum = pgEnum("account_sub_type", [
 ]);
 
 export const chartOfAccounts = pgTable("accounts", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }),
   type: accountTypeEnum("type").notNull(),
   organizationId: uuid("organizationId")
     .notNull()
     .references(() => organizations.id, { onDelete: "cascade" }),
-  parentAccountId: integer("parent_account_id").references(
+  parentAccountId: uuid("parent_account_id").references(
     (): AnyPgColumn => chartOfAccounts.id,
   ),
   createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
