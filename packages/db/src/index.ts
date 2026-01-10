@@ -7,3 +7,4 @@ export * from "./queries/accounts";
 export * from "./queries/classes";
 export * from "./queries/payees";
 export * from "./queries/transactions";
+export * from "./queries/reports";

@@ -65,6 +65,10 @@ export function AppSidebar({
           title: "Payees",
           url: "/accounting/payees",
         },
+        {
+          title: "Profit & Loss",
+          url: "/accounting/reports/profit-loss",
+        },
       ],
     },
     {
