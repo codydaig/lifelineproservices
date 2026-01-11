@@ -10,7 +10,10 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -34,9 +37,11 @@
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@vitest/ui": "^3.0.5",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
     "eslint": "^9.39.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.5"
   }
 }

@@ -1,0 +1,99 @@
+Account List,,,
+
+Full name,Type,Detail type,Description
+Accounts Payable,Accounts payable (A/P),Accounts Payable (A/P),Unpaid or unapplied vendor bills or credits
+Accounts Receivable (A/R),Accounts receivable (A/R),Accounts Receivable (A/R),
+Main - Incredible Bank,Bank,Checking,
+Security Dep - Incredible Bank,Bank,Checking,
+Cost of Goods Sold,Cost of Goods Sold,Supplies & Materials - COGS,
+Cody GRB CC,Credit Card,Credit Card,
+Garrett GRB CC,Credit Card,Credit Card,Garrett's CC at GRB
+Gordy GRB CC,Credit Card,Credit Card,
+Cody Daig Equity,Equity,Owner's Equity,
+Garrett Strobel Equity,Equity,Owner's Equity,
+Gordon Daig Equity,Equity,Owner's Equity,Equity for member 2
+Jeanette Daig Equity,Equity,Owner's Equity,Monies taken out of the business by member 2
+Opening Balance Equity,Equity,Opening Balance Equity,Opening balances during setup post to this account. The balance of this account should be zero after
+Retained Earnings,Equity,Retained Earnings,Undistributed earnings of the corporation
+Accounting & Bookkeeping,Expenses,Other Business Expenses,
+Advertising and Promotion,Expenses,Other Miscellaneous Service Cost,"Advertising, marketing, graphic design, and other promotional expenses"
+Attorney and Legal Fees,Expenses,Other Miscellaneous Service Cost,
+Automobile Expense,Expenses,Other Miscellaneous Service Cost,"Fuel, oil, repairs, and other automobile maintenance for business autos"
+Bank Service Charges,Expenses,Other Miscellaneous Service Cost,"Bank account service fees, bad check charges and other bank fees"
+Business Licenses and Permits,Expenses,Other Miscellaneous Service Cost,"Business licenses, permits, and other business-related fees"
+Cell Phone and Internet,Expenses,Other Miscellaneous Service Cost,
+Cleaning Service,Expenses,Repair & Maintenance,
+Cleaning Supplies,Expenses,Other Miscellaneous Service Cost,
+Closing Costs,Expenses,Other Miscellaneous Service Cost,
+Computer and Software Expenses,Expenses,Other Miscellaneous Service Cost,"Computer supplies, off-the-shelf software, online fees, and other computer or internet related expen"
+Depreciation Expense,Expenses,Other Miscellaneous Service Cost,"Depreciation on equipment, buildings and improvements"
+Dues and Subscriptions,Expenses,Other Miscellaneous Service Cost,"Subscriptions and membership dues for civic, service, professional, trade organizations"
+Furnishings and Appliances,Expenses,Other Miscellaneous Service Cost,
+Insurance Expense,Expenses,Other Miscellaneous Service Cost,Insurance expenses
+Interest Expense,Expenses,Other Miscellaneous Service Cost,"Interest payments on business loans, credit card balances, or other business debt"
+Meals and Entertainment,Expenses,Other Miscellaneous Service Cost,"Business meals and entertainment expenses, including travel-related meals (may have limited deductib"
+Office Supplies,Expenses,Other Miscellaneous Service Cost,Office supplies expense
+Payroll Expenses,Expenses,Payroll Expenses,Payroll expenses
+Postage and Delivery,Expenses,Other Miscellaneous Service Cost,"Postage, courier, and pickup and delivery services"
+Professional Fees,Expenses,Other Miscellaneous Service Cost,Payments to accounting professionals and attorneys for accounting or legal services
+Property Management,Expenses,Other Miscellaneous Service Cost,
+Property Taxes,Expenses,Other Miscellaneous Service Cost,
+Purchases,Expenses,Supplies & Materials,
+Routine Maintenance,Expenses,Other Miscellaneous Service Cost,
+Telephone Expense,Expenses,Other Miscellaneous Service Cost,"Telephone and long distance charges, faxing, and other fees Not equipment purchases"
+Trash / Dump,Expenses,Other Miscellaneous Service Cost,
+Travel,Expenses,Other Miscellaneous Service Cost,
+Uncategorized Expense,Expenses,Other Miscellaneous Service Cost,
+Unexpected Repairs,Expenses,Other Miscellaneous Service Cost,Incidental repairs and maintenance of business assets that do not add to the value or appreciably pr
+Utilities,Expenses,Other Miscellaneous Service Cost,"Water, electricity, garbage, and other basic utilities expenses"
+Vehicles and Mileage,Expenses,Other Miscellaneous Service Cost,
+1032 E Cloverland Ironwood,Fixed Assets,Other fixed assets,
+1032 E Cloverland Ironwood:Accumulated Depreciation,Fixed Assets,Accumulated Depreciation,
+1032 E Cloverland Ironwood:Building Cost,Fixed Assets,Buildings,
+1032 E Cloverland Ironwood:Building Improvements,Fixed Assets,Other fixed assets,
+1032 E Cloverland Ironwood:Land Cost,Fixed Assets,Land,
+148 E Michigan Ave 49938,Fixed Assets,Other fixed assets,
+148 E Michigan Ave 49938:Accumulated Depreciation,Fixed Assets,Accumulated Depreciation,
+148 E Michigan Ave 49938:Building Cost,Fixed Assets,Buildings,
+148 E Michigan Ave 49938:Building Improvements,Fixed Assets,Other fixed assets,
+148 E Michigan Ave 49938:Land Cost,Fixed Assets,Land,
+152 W Pewabic Ironwood,Fixed Assets,Buildings,
+152 W Pewabic Ironwood:Accumulated Depreciation,Fixed Assets,Accumulated Depreciation,
+152 W Pewabic Ironwood:Building Cost,Fixed Assets,Buildings,
+152 W Pewabic Ironwood:Building Improvements,Fixed Assets,Depletable Assets,
+152 W Pewabic Ironwood:Land Cost,Fixed Assets,Land,
+510 5th Ave N Hurley,Fixed Assets,Other fixed assets,
+510 5th Ave N Hurley:Accumulated Depreciation,Fixed Assets,Accumulated Depreciation,
+510 5th Ave N Hurley:Building Cost,Fixed Assets,Buildings,
+510 5th Ave N Hurley:Building Improvements,Fixed Assets,Other fixed assets,
+510 5th Ave N Hurley:Land Cost,Fixed Assets,Land,
+708 E Lead St Bessemer,Fixed Assets,Other fixed assets,
+708 E Lead St Bessemer:Accumulated Depreciation,Fixed Assets,Accumulated Depreciation,
+708 E Lead St Bessemer:Building Cost,Fixed Assets,Buildings,
+708 E Lead St Bessemer:Land Cost,Fixed Assets,Land,
+Accumulated Depreciation,Fixed Assets,Other fixed assets,"Accumulated depreciation on equipment, buildings and improvements"
+Billable Expense Income,Income,Service/Fee Income,
+Markup,Income,Service/Fee Income,
+Property Damage Income,Income,Service/Fee Income,
+Rental Income,Income,Service/Fee Income,
+Sale of Property Income,Income,Sales of Product Income,
+Sales of Product Income,Income,Sales of Product Income,
+Services,Income,Service/Fee Income,
+Uncategorized Income,Income,Service/Fee Income,
+Inventory Asset,Other Current Assets,Inventory,
+Uncategorized Asset,Other Current Assets,Other Current Assets,
+Undeposited Funds,Other Current Assets,Undeposited Funds,
+Gogebic Range Loan 152 W Pewabic,Other Current Liabilities,Other Current Liabilities,
+Gogebic Range Loan 510 5th Ave N,Other Current Liabilities,Loan Payable,
+Incredible Bank Loan 1,Other Current Liabilities,Other Current Liabilities,
+Incredible Bank LOC 1,Other Current Liabilities,Other Current Liabilities,
+Payroll Liabilities,Other Current Liabilities,Payroll Tax Payable,"Unpaid payroll liabilities. Amounts withheld or accrued, but not yet paid"
+Security Deposit,Other Current Liabilities,Other Current Liabilities,
+Ask My Accountant,Other Expense,Other Miscellaneous Expense,"Transactions to be discussed with accountant, consultant, or tax preparer"
+Reconciliation Discrepancies,Other Expense,Other Miscellaneous Expense,
+Credit Card Rewards,Other Income,Other Miscellaneous Income,Credit card Rewards
+TOTAL,,,
+
+
+
+" Sunday, January 04, 2026 01:01 AM GMTZ",,,
