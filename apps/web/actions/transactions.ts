@@ -5,14 +5,12 @@ import {
   createTransactionWithEntries,
   updateTransactionWithEntries,
   deleteTransaction as dbDeleteTransaction,
-  getAccountingTransactions,
   getChartOfAccounts,
   getAccountingPayees,
   getAccountingClasses,
 } from "@workspace/db";
 import Papa from "papaparse";
 import { revalidatePath } from "next/cache";
-import { randomUUID } from "crypto";
 
 interface TransactionData {
   date: Date;
@@ -123,7 +121,40 @@ function normalizeTransactionType(
 // Helper to parse amount and remove commas
 function parseAmount(amount: string | undefined): number {
   if (!amount) return 0;
-  return parseFloat(amount.toString().replace(/,/g, ""));
+  const cleaned = amount.toString().replace(/,/g, "").replace(/"/g, "");
+  return parseFloat(cleaned) || 0;
+}
+
+// Raw CSV row from Papa Parse
+interface QuickBooksCSVRow {
+  "": string;
+  "Transaction date": string;
+  "Transaction type": string;
+  "Num": string;
+  "Name": string;
+  "Memo/Description": string;
+  "Split account": string;
+  "Distribution account": string;
+  "Debit": string;
+  "Credit": string;
+  "Balance": string;
+  "Item class": string;
+  [key: string]: string; // Allow dynamic access for first column
+}
+
+// Processed ledger row for transaction grouping
+interface ParsedLedgerRow {
+  account: string;
+  date: string;
+  type: string;
+  num: string;
+  name: string;
+  memo: string;
+  splitAccount: string;
+  debit: string;
+  balance: string;
+  class: string;
+  credit: string;
 }
 
 export async function importQuickBooksLedger(csvData: string) {
@@ -149,12 +180,14 @@ export async function importQuickBooksLedger(csvData: string) {
   const lines = csvData.split(/\r?\n/);
 
   console.log(`Total lines in CSV: ${lines.length}`);
-  console.log(`First 10 lines:`, lines.slice(0, 10));
 
-  // Find the header row (contains "Distribution account")
+  // Find the header row (contains "Distribution account" or "Transaction date")
   let headerIndex = -1;
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i]?.includes("Distribution account")) {
+    if (
+      lines[i]?.includes("Distribution account") ||
+      lines[i]?.includes("Transaction date")
+    ) {
       headerIndex = i;
       console.log(`Found header row at index ${i}`);
       break;
@@ -167,7 +200,6 @@ export async function importQuickBooksLedger(csvData: string) {
 
   // Start parsing from the header row
   const dataLines = lines.slice(headerIndex);
-  console.log(`Data lines from header: ${dataLines.length}`);
 
   // Parse CSV
   const parsed = Papa.parse(dataLines.join("\n"), {
@@ -175,23 +207,70 @@ export async function importQuickBooksLedger(csvData: string) {
     skipEmptyLines: true,
   });
 
-  let rows = parsed.data as any[];
-  console.log(`Parsed rows: ${rows.length}`);
-  console.log(`First parsed row:`, rows[0]);
-  console.log(`Column headers:`, Object.keys(rows[0] || {}));
+  const rows = parsed.data as QuickBooksCSVRow[];
+  console.log(`Parsed ${rows.length} rows`);
 
+  // Group rows by transaction (using transaction number + date + type)
+  interface TransactionKey {
+    date: string;
+    type: string;
+    num: string;
+  }
+
+  interface TransactionGroup {
+    key: TransactionKey;
+    entries: ParsedLedgerRow[];
+  }
+
+  const transactionGroups = new Map<string, TransactionGroup>();
   let currentAccount: string | null = null;
-  const transactionsToCreate: TransactionData[] = [];
+  let parentAccount: string | null = null;
 
   for (const row of rows) {
-    // Get the first column (the one with no name or empty string)
+    // Get the first column for account name
     const firstKey = Object.keys(row)[0];
     const firstColumn = row[""] || (firstKey ? row[firstKey] : undefined);
 
-    // Check if this is an account header row (first column has account name, rest are empty)
+    // Check if this is an account header row
     if (firstColumn && firstColumn.trim() !== "" && !row["Transaction date"]) {
-      currentAccount = firstColumn.trim();
-      console.log(`Found account header: ${currentAccount}`);
+      const accountName = firstColumn.trim();
+
+      // If we have a parent context, FIRST try hierarchical name
+      if (parentAccount) {
+        const hierarchicalName = `${parentAccount}:${accountName}`;
+
+        if (accountMap.has(hierarchicalName)) {
+          // Found hierarchical match - use it
+          currentAccount = hierarchicalName;
+          console.log(
+            `Found account: ${accountName} (parent: ${parentAccount}) -> using: ${hierarchicalName}`,
+          );
+          continue;
+        }
+        // If hierarchical doesn't exist, fall through to check if this is a new parent
+      }
+
+      // Check if any accounts start with this name followed by a colon (it's a parent)
+      const hasChildren = Array.from(accountMap.keys()).some((name) =>
+        name?.startsWith(accountName + ":"),
+      );
+
+      if (hasChildren) {
+        // This is a parent account - but it can still have direct transactions
+        parentAccount = accountName;
+        currentAccount = accountName; // Allow parent to have direct entries
+        console.log(`Found parent account: ${accountName}`);
+      } else if (accountMap.has(accountName)) {
+        // Direct match found (and it's not a parent with children)
+        currentAccount = accountName;
+        parentAccount = null; // Reset parent context
+        console.log(`Found account: ${accountName} -> using: ${accountName}`);
+      } else {
+        // Account not found at all - skip it
+        console.warn(`Account not found: ${accountName}`);
+        currentAccount = null;
+      }
+
       continue;
     }
 
@@ -200,107 +279,135 @@ export async function importQuickBooksLedger(csvData: string) {
       continue;
     }
 
-    // Skip total rows (you can add more conditions here)
+    // Skip total rows
+    if (firstColumn?.toLowerCase().includes("total")) {
+      continue;
+    }
+
+    const date = row["Transaction date"];
+    const type = row["Transaction type"] || "Journal Entry";
+    const num = row["Num"] || "";
     const name = row["Name"] || "";
-    if (name.toLowerCase().includes("total")) {
-      continue;
-    }
+    const memo = row["Memo/Description"] || "";
+    const splitAccount =
+      row["Split account"] || row["Distribution account"] || "";
+    const debit = row["Debit"] || "";
+    const credit = row["Credit"] || "";
+    const balance = row["Balance"] || "";
+    const className = row["Item class"] || "";
 
-    // Parse the row
-    const date = new Date(row["Transaction date"]);
-    const transactionType = normalizeTransactionType(
-      row["Transaction type"] || "journal_entry",
-    );
-    const payeeName = row["Name"];
-    const description = row["Memo/Description"] || payeeName || "";
-    const splitAccountName = row["Split account"];
-    const className = row["Item class"];
-    const checkNumber = row["Num"] || null;
-    const debit = parseAmount(row["Debit"]);
-    const credit = parseAmount(row["Credit"]);
+    // Create a unique key for this transaction group
+    // Transactions with the same date, type, and number are part of the same transaction
+    const transactionKey = `${date}|${type}|${num}`;
 
-    // Get IDs
-    const mainAccountId = accountMap.get(currentAccount);
-    const splitAccountId = splitAccountName
-      ? accountMap.get(splitAccountName)
-      : null;
-    const payeeId = payeeName ? payeeMap.get(payeeName) : null;
-    const classId = className ? classMap.get(className) : null;
-
-    if (!mainAccountId) {
-      console.warn(`Account not found: ${currentAccount}`);
-      continue;
-    }
-
-    // Create entries for this transaction
-    const entries: TransactionData["entries"] = [];
-
-    // Main account entry
-    if (debit > 0) {
-      entries.push({
-        accountId: mainAccountId,
-        payeeId,
-        classId,
-        number: checkNumber,
-        debit: debit.toFixed(2),
-        credit: null,
-        memo: description,
-      });
-    } else if (credit > 0) {
-      entries.push({
-        accountId: mainAccountId,
-        payeeId,
-        classId,
-        number: checkNumber,
-        debit: null,
-        credit: credit.toFixed(2),
-        memo: description,
+    if (!transactionGroups.has(transactionKey)) {
+      transactionGroups.set(transactionKey, {
+        key: { date, type, num },
+        entries: [],
       });
     }
 
-    // Split account entry (opposite side)
-    if (splitAccountId) {
-      if (debit > 0) {
-        // If main account was debited, split account is credited
-        entries.push({
-          accountId: splitAccountId,
-          payeeId,
-          classId,
-          number: checkNumber,
-          debit: null,
-          credit: debit.toFixed(2),
-          memo: description,
-        });
-      } else if (credit > 0) {
-        // If main account was credited, split account is debited
-        entries.push({
-          accountId: splitAccountId,
-          payeeId,
-          classId,
-          number: checkNumber,
-          debit: credit.toFixed(2),
-          credit: null,
-          memo: description,
+    transactionGroups.get(transactionKey)!.entries.push({
+      account: currentAccount,
+      date,
+      type,
+      num,
+      name,
+      memo,
+      splitAccount,
+      debit,
+      balance,
+      class: className,
+      credit,
+    });
+  }
+
+  console.log(`Grouped into ${transactionGroups.size} transactions`);
+
+  // Convert grouped transactions into TransactionData format
+  const transactionsToCreate: TransactionData[] = [];
+  const errors: string[] = [];
+
+  for (const [key, group] of transactionGroups.entries()) {
+    try {
+      if (group.entries.length === 0) continue;
+
+      const firstEntry = group.entries[0];
+      if (!firstEntry) continue;
+
+      const date = new Date(firstEntry.date);
+      const transactionType = normalizeTransactionType(firstEntry.type);
+      const descriptions = group.entries
+        .map((e) => e.memo || e.name)
+        .filter((d) => d)
+        .join(", ");
+
+      const entries: TransactionData["entries"] = [];
+
+      for (const entry of group.entries) {
+        const accountId = accountMap.get(entry.account);
+        if (!accountId) {
+          console.warn(`Account not found: ${entry.account}`);
+          continue;
+        }
+
+        const payeeId = entry.name ? payeeMap.get(entry.name) : null;
+        const classId = entry.class ? classMap.get(entry.class) : null;
+        const debit = parseAmount(entry.debit);
+        const credit = parseAmount(entry.credit);
+
+        if (debit > 0 || credit > 0) {
+          entries.push({
+            accountId,
+            payeeId,
+            classId,
+            number: entry.num || null,
+            debit: debit > 0 ? debit.toFixed(2) : null,
+            credit: credit > 0 ? credit.toFixed(2) : null,
+            memo: entry.memo || entry.name || null,
+          });
+        }
+
+        // NOTE: Split account logic removed. In QuickBooks General Ledger format,
+        // all entries are already listed as separate rows, so we don't need to
+        // create split account entries - they're already in the CSV.
+      }
+
+      // Validate that transaction balances
+      const totalDebits = entries.reduce(
+        (sum, e) => sum + (e.debit ? parseFloat(e.debit) : 0),
+        0,
+      );
+      const totalCredits = entries.reduce(
+        (sum, e) => sum + (e.credit ? parseFloat(e.credit) : 0),
+        0,
+      );
+
+      if (Math.abs(totalDebits - totalCredits) > 0.01) {
+        console.warn(
+          `Transaction doesn't balance: ${key} (Debits: ${totalDebits}, Credits: ${totalCredits})`,
+        );
+        errors.push(
+          `Transaction ${key}: Debits ${totalDebits} != Credits ${totalCredits}`,
+        );
+        continue;
+      }
+
+      if (entries.length >= 2) {
+        transactionsToCreate.push({
+          date,
+          transactionType,
+          description: descriptions,
+          entries,
         });
       }
-    }
-
-    // Only add transaction if we have valid entries
-    if (entries.length >= 2) {
-      transactionsToCreate.push({
-        date,
-        transactionType,
-        description,
-        entries,
-      });
-    } else {
-      console.log(
-        `Skipping transaction - not enough entries (${entries.length})`,
-      );
+    } catch (error) {
+      console.error(`Error processing transaction ${key}:`, error);
+      errors.push(`Error in transaction ${key}: ${error}`);
     }
   }
 
-  console.log(`Total transactions to create: ${transactionsToCreate.length}`);
+  console.log(`Created ${transactionsToCreate.length} transactions to import`);
 
   // Create all transactions
   let successCount = 0;
@@ -313,6 +420,7 @@ export async function importQuickBooksLedger(csvData: string) {
     } catch (error) {
       console.error("Failed to create transaction:", error);
       errorCount++;
+      errors.push(`Failed to create: ${error}`);
     }
   }
 
@@ -326,5 +434,6 @@ export async function importQuickBooksLedger(csvData: string) {
     imported: successCount,
     errors: errorCount,
     total: transactionsToCreate.length,
+    errorMessages: errors,
   };
 }

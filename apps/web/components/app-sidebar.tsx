@@ -69,6 +69,10 @@ export function AppSidebar({
           title: "Profit & Loss",
           url: "/accounting/reports/profit-loss",
         },
+        {
+          title: "Balance Sheet",
+          url: "/accounting/reports/balance-sheet",
+        },
       ],
     },
     {

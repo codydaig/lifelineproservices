@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { useState } from "react";
 import {
   ProfitAndLossAccount,
   DateRangePreset,
@@ -24,8 +24,8 @@ import {
 } from "@workspace/ui/components/select";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatCurrency, AccountList } from "../shared-components";
 
 interface ProfitLossClientProps {
   profitLoss: ProfitAndLossAccount[];
@@ -33,104 +33,6 @@ interface ProfitLossClientProps {
   preset: DateRangePreset;
   dateRange: DateRange;
   classId?: string;
-}
-
-function formatCurrency(amount: number): string {
-  return amount.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function findRootAccounts(accounts: ProfitAndLossAccount[]) {
-  const accountsWithoutParent = accounts.filter(
-    (account) => !account.parentAccountId
-  );
-
-  const accountIds = new Set(accounts.map((acc) => acc.id));
-  const parentAccounts = accounts.filter((account) => {
-    if (!account.parentAccountId) return true;
-    return (
-      accounts.some((acc) => acc.parentAccountId === account.id) &&
-      !accountIds.has(account.parentAccountId)
-    );
-  });
-
-  const rootAccounts = [
-    ...new Set([...accountsWithoutParent, ...parentAccounts]),
-  ];
-
-  return rootAccounts.sort((a, b) => a.name.localeCompare(b.name));
-}
-
-function AccountRow({
-  account,
-  level = 0,
-}: {
-  account: ProfitAndLossAccount;
-  level?: number;
-}) {
-  if (account.total === 0 && account.totalBalance === 0) return null;
-
-  return (
-    <TableRow key={account.id}>
-      <TableCell>
-        <div style={{ paddingLeft: `${level * 20}px` }}>{account.name}</div>
-      </TableCell>
-      <TableCell className="text-right tabular-nums w-[200px]">
-        ${formatCurrency(account.total)}
-      </TableCell>
-    </TableRow>
-  );
-}
-
-function AccountList({
-  accounts,
-  parentId = null,
-  level = 0,
-}: {
-  accounts: ProfitAndLossAccount[];
-  parentId?: string | null;
-  level?: number;
-}) {
-  const childAccounts =
-    parentId === null
-      ? findRootAccounts(accounts)
-      : accounts
-          .filter((account) => account.parentAccountId === parentId)
-          .sort((a, b) => a.name.localeCompare(b.name));
-
-  return (
-    <>
-      {childAccounts.map((account) => {
-        const hasSubAccounts = accounts.some(
-          (acc) => acc.parentAccountId === account.id
-        );
-
-        return (
-          <Fragment key={account.id}>
-            <AccountRow account={account} level={level} />
-            <AccountList accounts={accounts} parentId={account.id} level={level + 1} />
-            {hasSubAccounts && account.totalBalance !== 0 && (
-              <TableRow>
-                <TableCell>
-                  <div
-                    style={{ paddingLeft: `${level * 20}px` }}
-                    className="font-bold"
-                  >
-                    Total {account.name}
-                  </div>
-                </TableCell>
-                <TableCell className="text-right font-bold tabular-nums w-[200px]">
-                  ${formatCurrency(account.totalBalance)}
-                </TableCell>
-              </TableRow>
-            )}
-          </Fragment>
-        );
-      })}
-    </>
-  );
 }
 
 export function ProfitLossClient({
@@ -253,7 +155,7 @@ export function ProfitLossClient({
               Revenue
             </TableCell>
           </TableRow>
-          <AccountList accounts={revenues} level={1} />
+          <AccountList accounts={revenues} level={1} amountField="total" />
           <TableRow className="bg-muted/50">
             <TableCell className="font-bold">Total Revenue</TableCell>
             <TableCell className="text-right font-bold tabular-nums w-[200px]">
@@ -266,7 +168,7 @@ export function ProfitLossClient({
               Expenses
             </TableCell>
           </TableRow>
-          <AccountList accounts={expenses} level={1} />
+          <AccountList accounts={expenses} level={1} amountField="total" />
           <TableRow className="bg-muted/50">
             <TableCell className="font-bold">Total Expenses</TableCell>
             <TableCell className="text-right font-bold tabular-nums w-[200px]">
